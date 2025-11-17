@@ -1,0 +1,77 @@
+import network
+import urequests
+import machine
+import time
+
+# --- WiFi Setup ---
+SSID = "YOUR_WIFI"
+PASSWORD = "YOUR_PASSWORD"
+
+relay = machine.Pin(5, machine.Pin.OUT)  # GPIO5 → Relay Module
+
+def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect(SSID, PASSWORD)
+
+    while not wlan.isconnected():
+        time.sleep(0.5)
+
+def check_command():
+    # Replace with your secure HTTPS endpoint
+    url = "https://your-domain.com/api/relay-command"
+
+    try:
+        response = urequests.get(url)
+        data = response.json()
+
+        if data.get("open") is True:
+            relay.value(1)   # Activate relay
+            time.sleep(1)
+            relay.value(0)
+        response.close()
+
+    except Exception as e:
+        print("Error:", e)
+
+connect_wifi()
+
+while True:
+    check_command()
+    time.sleep(2)
+const express = require("express");
+const app = express();
+
+let allowOpen = false;
+
+// Secure your endpoint with a token!
+const TOKEN = "YOUR_SECURE_TOKEN";
+
+app.get("/api/relay-command", (req, res) => {
+  const token = req.headers["x-api-key"];
+
+  if (token !== TOKEN) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
+  res.json({ open: allowOpen });
+  allowOpen = false; // Reset after single use
+});
+
+app.post("/open", (req, res) => {
+  const token = req.headers["x-api-key"];
+
+  if (token !== TOKEN) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
+  allowOpen = true;
+  res.json({ status: "Relay triggered" });
+});
+
+app.listen(3000, () => console.log("Server running"));
+# IoT Remote Relay Control (Secure)
+
+This project demonstrates how to securely control a relay module via an ESP32
+using an HTTPS API. This template is meant for education and safe home-automation
+projects only. Do NOT use it for any unauthorized access.
