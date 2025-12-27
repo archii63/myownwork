@@ -33,9 +33,11 @@ def check_command():
 
     except Exception as e:
         print("Error:", e)
-
+wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
 connect_wifi()
-
+wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
 while True:
     check_command()
     time.sleep(2)
