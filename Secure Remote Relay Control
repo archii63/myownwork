@@ -46,6 +46,10 @@ const app = express();
 
 let allowOpen = false;
 
+def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect(SSID, PASSWORD)
 // Secure your endpoint with a token!
 const TOKEN = "YOUR_SECURE_TOKEN";
 
