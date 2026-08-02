@@ -28,7 +28,9 @@ def check_command():
     try:
         response = urequests.get(url)
         data = response.json()
-
+wlan.active(True)
+    wlan.connect(SSID, PASSWORD)
+    while not wlan.isconnected():
         if data.get("open") is True:
             relay.value(1)   # Activate relay
             time.sleep(1)
