@@ -1,89 +1,152 @@
-import network
-import urequests
-import machine
-import time
+# NexoraPulse
 
-# --- WiFi Setup ---
-SSID = "YOUR_WIFI"
-PASSWORD = "YOUR_PASSWORD"
+**NexoraPulse** is a lightweight, professional CLI tool for monitoring REST API endpoints from the terminal.
 
-relay = machine.Pin(5, machine.Pin.OUT)  # GPIO5 → Relay Module
+It performs concurrent health checks, measures response latency, validates HTTP status codes, and generates a clean summary that can be used locally or inside CI/CD pipelines.
 
-def connect_wifi():
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-    wlan.connect(SSID, PASSWORD)
-    while not wlan.isconnected():
-        time.sleep(0.5)
+## Features
 
-def connect_wifi():
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-    wlan.connect(SSID, PASSWORD)
+* ⚡ Concurrent endpoint checks
+* 📡 HTTP status monitoring
+* ⏱️ Response latency measurement
+* 🔐 HTTPS support
+* 📊 Human-readable terminal output
+* 🤖 CI/CD-friendly exit codes
+* 🧩 Simple JSON configuration
+* 🛠️ Built with Python and standard libraries
 
-def check_command():
-    # Replace with your secure HTTPS endpoint
-    url = "https://your-domain.com/api/relay-command"
+## Requirements
 
-    try:
-        response = urequests.get(url)
-        data = response.json()
-wlan.active(True)
-    wlan.connect(SSID, PASSWORD)
-    while not wlan.isconnected():
-        if data.get("open") is True:
-            relay.value(1)   # Activate relay
-            time.sleep(1)
-            relay.value(0)
-        response.close()
+* Python 3.10+
+* No external dependencies
 
-    except Exception as e:
-        print("Error:", e)
-wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-connect_wifi()
-wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-while True:
-    check_command()
-    time.sleep(2)
-const express = require("express");
-const app = express();
+## Installation
 
-let allowOpen = false;
+Clone the repository:
 
-def connect_wifi():
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-    wlan.connect(SSID, PASSWORD)
-// Secure your endpoint with a token!
-const TOKEN = "YOUR_SECURE_TOKEN";
+```bash
+git clone https://github.com/yourusername/nexorapulse.git
+cd nexorapulse
+```
 
-app.get("/api/relay-command", (req, res) => {
-  const token = req.headers["x-api-key"];
+Run the tool:
 
-  if (token !== TOKEN) {
-    return res.status(403).json({ error: "Forbidden" });
-  }
+```bash
+python nexorapulse.py
+```
 
-  res.json({ open: allowOpen });
-  allowOpen = false; // Reset after single use
-});
+## Configuration
 
-app.post("/open", (req, res) => {
-  const token = req.headers["x-api-key"];
+Create a `config.json` file:
 
-  if (token !== TOKEN) {
-    return res.status(403).json({ error: "Forbidden" });
-  }
+```json
+{
+  "timeout": 5,
+  "endpoints": [
+    {
+      "name": "Main API",
+      "url": "https://api.example.com/health"
+    },
+    {
+      "name": "Authentication",
+      "url": "https://api.example.com/auth/health"
+    },
+    {
+      "name": "Database Service",
+      "url": "https://api.example.com/db/health"
+    }
+  ]
+}
+```
 
-  allowOpen = true;
-  res.json({ status: "Relay triggered" });
-});
+## Usage
 
-app.listen(3000, () => console.log("Server running"));
-# IoT Remote Relay Control (Secure)
+```bash
+python nexorapulse.py --config config.json
+```
 
-This project demonstrates how to securely control a relay module via an ESP32
-using an HTTPS API. This template is meant for education and safe home-automation
-projects only. Do NOT use it for any unauthorized access.
+Example output:
+
+```text
+NexoraPulse
+────────────────────────────────────────
+
+✓ Main API           200    124 ms
+✓ Authentication     200     89 ms
+✗ Database Service   503    241 ms
+
+────────────────────────────────────────
+Checked: 3
+Healthy: 2
+Failed:  1
+Average latency: 151 ms
+```
+
+## Exit Codes
+
+NexoraPulse is designed to work with automated pipelines.
+
+```text
+0   All endpoints are healthy
+1   One or more endpoints failed
+2   Configuration or runtime error
+```
+
+This makes it easy to integrate with GitHub Actions, GitLab CI, Jenkins, or other automation systems.
+
+## Project Structure
+
+```text
+nexorapulse/
+├── nexorapulse.py
+├── config.json
+├── README.md
+├── LICENSE
+└── .gitignore
+```
+
+## Example CI Usage
+
+```yaml
+name: API Health Check
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run NexoraPulse
+        run: python nexorapulse.py --config config.json
+```
+
+## Why NexoraPulse?
+
+Many monitoring tools are designed for large infrastructures and require additional services, databases, or dashboards.
+
+NexoraPulse focuses on one thing:
+
+> **Know whether your critical APIs are healthy before your users tell you they are not.**
+
+It is intentionally small, dependency-free, and easy to integrate.
+
+## Roadmap
+
+* [ ] JSON output mode
+* [ ] CSV reporting
+* [ ] SSL certificate expiration checks
+* [ ] Response-body validation
+* [ ] Retry policies
+* [ ] Webhook notifications
+* [ ] Historical latency tracking
+* [ ] Docker support
+
+## License
+
+MIT License
